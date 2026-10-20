@@ -341,6 +341,13 @@ git clone https://github.com/bibabo-lulalulalei/dsh-purge.git "$DSH_HOME/plugins
 
 JSON 要合法（新增项前面有逗号，最后一项后面没有多余逗号）。`file:../../plugins/dsh-purge` 不要改成绝对路径，`patchReload`、其它插件、版本号都不要动，`"dsh-purge"` 不要写两次。桌面端没有 `dsh-web-app` 就不要硬加。
 
+**不要用记事本、PowerShell 的 `>` / `Out-File` 改这个文件**：它们会写入 UTF-8 BOM，宿主启动时 `readProfileManifest` 的 `JSON.parse` 不认 BOM，直接起不来（`Unexpected token '﻿' ... is not valid JSON`）。用 VS Code（右下角选「UTF-8」，不要「UTF-8 with BOM」）或 Notepad++。已经写坏的，PowerShell 一键去 BOM：
+
+```powershell
+$p = "$env:USERPROFILE\.dsh\profiles\desktop\package.json"   # web 端把 desktop 换成 web
+[IO.File]::WriteAllText($p, [IO.File]::ReadAllText($p), (New-Object System.Text.UTF8Encoding($false)))
+```
+
 **4. 只在刚改的那个 profile 目录装依赖**（`cd` 进 profile 目录，不要在仓库根或 `$DSH_HOME` 根）：
 
 ```sh
